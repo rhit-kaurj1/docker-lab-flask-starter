@@ -13,6 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application files into the container
 COPY . .
 
+ENV TASK_DATA_DIR=/app/data
+
 # Document the port used by Flask
 EXPOSE 5000
 

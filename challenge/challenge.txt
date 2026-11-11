@@ -1,0 +1,51 @@
+﻿docker build -t notes:v1 .
+
+docker volume create notes-data
+
+docker run -d --name notes --network labnet -e NOTES_DIR=/srv/notes -v notes-data:/srv/notes notes:v1
+
+docker run --rm --network labnet curlimages/curl:latest -s http://notes:8000/health
+
+docker run --rm --network labnet curlimages/curl:latest -s -X POST -d "title=Groceries" -d "body=Strawberry, cookie, ice cream" http://notes:8000/notes
+
+docker run --rm --network labnet curlimages/curl:latest -s -X POST -d "title=School" -d "body=nap time" http://notes:8000/notes
+
+OUTPUT BEFORE REMOVING CONTAINER:
+[
+  {
+    "body": "Strawberry, cookie, ice cream",
+    "created": "2026-11-11T01:21:32+00:00",
+    "id": "e78ec107-e8b1-4719-85c1-c4f829646ecc",
+    "title": "Groceries"
+  },
+  {
+    "body": "nap time",
+    "created": "2026-11-11T01:22:06+00:00",
+    "id": "43c9d378-5dca-4f0a-b575-d44d4b0480de",
+    "title": "School"
+  }
+]
+
+docker run --rm --network labnet curlimages/curl:latest -s http://notes:8000/api/notes
+
+docker rm -f notes
+
+docker run -d --name notes --network labnet -e NOTES_DIR=/srv/notes -v notes-data:/srv/notes notes:v1
+
+docker run --rm --network labnet curlimages/curl:latest -s http://notes:8000/api/notes
+
+OUTPUT AFTER RECREATING CONTAINER:
+[
+  {
+    "body": "Strawberry, cookie, ice cream",
+    "created": "2026-11-11T01:21:32+00:00",
+    "id": "e78ec107-e8b1-4719-85c1-c4f829646ecc",
+    "title": "Groceries"
+  },
+  {
+    "body": "nap time",
+    "created": "2026-11-11T01:22:06+00:00",
+    "id": "43c9d378-5dca-4f0a-b575-d44d4b0480de",
+    "title": "School"
+  }
+]
